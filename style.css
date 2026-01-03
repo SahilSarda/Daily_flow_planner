@@ -1,0 +1,136 @@
+:root {
+    --bg-color: #FDFBF7;   /* Warm Off-White (Cream) */
+    --card-bg: #FFFFFF;    /* Pure White for inputs/highlights */
+    --text-primary: #4A4A4A; /* Soft Charcoal, not harsh black */
+    --text-secondary: #8C8C8C;
+    --accent-pastel: #E3E8EF; /* Soft Blue-Grey for hover states */
+    --line-color: #F0EEE9;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin: 0;
+    padding: 40px 20px;
+    transition: background 0.3s ease;
+}
+
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Header & Date Nav */
+header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.date-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+    min-width: 250px; /* Keeps arrows stable */
+}
+
+.nav-arrow {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 5px 15px;
+    border-radius: 20px;
+}
+
+.nav-arrow:hover {
+    background-color: var(--accent-pastel);
+    color: var(--text-primary);
+}
+
+/* Quote Style */
+.quote {
+    font-family: Georgia, serif; /* Serif font for elegance */
+    font-style: italic;
+    color: #8C8C8C;
+    margin-top: 15px;
+    font-size: 0.95rem;
+}
+
+/* Sections */
+.section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #B0B0B0;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Inputs & Textareas */
+textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: transparent;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+textarea:focus {
+    background: var(--card-bg); /* Highlights the active area */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+/* Journal Area Specifics */
+#daily-journal {
+    min-height: 200px; /* Nice big blank space */
+    background: var(--card-bg); /* Always white for the main writing area */
+    padding: 20px;
+    border: 1px solid var(--line-color);
+}
+
+/* Time Slots */
+.slot {
+    display: flex;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line-color);
+}
+
+.slot .time {
+    width: 70px;
+    font-size: 0.8rem;
+    color: #B0B0B0;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Checkboxes */
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+.checkbox-wrapper input {
+    accent-color: #8C8C8C; /* Pastel Grey checkbox */
+    transform: scale(1.2);
+    margin-right: 15px;
+}

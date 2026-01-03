@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Flow</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="date-nav">
+                <button id="prevBtn" class="nav-arrow">←</button>
+                <h1 id="dateDisplay">Loading...</h1>
+                <button id="nextBtn" class="nav-arrow">→</button>
+            </div>
+            <p id="quoteDisplay" class="quote">"Start where you are. Use what you have."</p>
+        </header>
+
+        <section class="block">
+            <h2 class="section-title">Daily Habits</h2>
+            <div class="habit-list">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="habit-exercise">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Exercise</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="habit-steps">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Walk 5k Steps</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="habit-code">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Code 30m</span>
+                </label>
+            </div>
+        </section>
+
+        <section class="block">
+            <h2 class="section-title">Reflections</h2>
+            <textarea id="daily-journal" placeholder="Clear your mind. Write about your day here..."></textarea>
+        </section>
+
+        <section class="block">
+            <h2 class="section-title">Schedule</h2>
+            <div id="time-slots" class="schedule-grid">
+                </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
