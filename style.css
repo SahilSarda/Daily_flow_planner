@@ -1,46 +1,140 @@
+/* style.css - Complete Final Version (Updated) */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@300;400;500;600&display=swap');
+
 :root {
-    --bg-color: #FDFBF7;   /* Warm Off-White (Cream) */
-    --card-bg: #FFFFFF;    /* Pure White for inputs/highlights */
-    --text-primary: #4A4A4A; /* Soft Charcoal, not harsh black */
-    --text-secondary: #8C8C8C;
-    --accent-pastel: #E3E8EF; /* Soft Blue-Grey for hover states */
-    --line-color: #F0EEE9;
+    /* --- Base Colors --- */
+    --card-bg: #FFFFFF;
+    --text-primary: #2D3748;   /* Charcoal */
+    --text-secondary: #718096; /* Muted Blue-Grey */
+    --line-color: #E2E8F0;     /* Light Gray Border */
+    
+    /* --- Dynamic Theme Variables (Updated by JS) --- */
+    --accent-color: #4A5568;   /* Default Slate */
+    --accent-tint: #F7FAFC;    /* Default Light BG */
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
-    background-color: var(--bg-color);
+    /* Use 'Inter' for UI text for a clean, modern look */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--accent-tint); /* Changes with theme */
     color: var(--text-primary);
     line-height: 1.6;
     margin: 0;
-    padding: 40px 20px;
-    transition: background 0.3s ease;
+    padding: 30px 20px 120px 20px; /* Extra bottom padding for mobile scroll */
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .container {
-    max-width: 700px;
+    max-width: 600px;
     margin: 0 auto;
 }
 
-/* Header & Date Nav */
-header {
+/* --- 1. APP BRANDING --- */
+.app-brand {
+    font-family: 'Playfair Display', serif; /* Elegant Serif Font */
+    font-weight: 600;
+    font-size: 2.2rem;
     text-align: center;
-    margin-bottom: 50px;
+    margin-bottom: 35px;
+    color: var(--accent-color);
+    letter-spacing: -0.5px;
 }
 
+/* --- 2. HEADER & ICONS --- */
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 25px;
+}
+
+.greeting h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.1;
+    color: var(--text-primary);
+}
+
+.sub-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Minimalist Icon Group */
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--accent-color); /* Icons match the theme color */
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+}
+
+.icon-btn:hover {
+    opacity: 1;
+    background-color: rgba(255,255,255,0.5);
+    transform: rotate(10deg);
+}
+
+.icon-btn svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+/* --- 3. DATE NAVIGATION (Updated for Date-Month-Year) --- */
 .date-nav {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 20px;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px 15px;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.01);
 }
 
-h1 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin: 0;
+/* Vertical Stack for Date */
+.date-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2; /* Better spacing for full date */
+}
+
+/* Updated Size for "03 Jan 2026" */
+.date-big {
+    font-size: 1.3rem; /* Adjusted to fit full date string */
+    font-weight: 700;
     color: var(--text-primary);
-    min-width: 250px; /* Keeps arrows stable */
+    letter-spacing: -0.5px;
+}
+
+/* Updated Size for "Monday" */
+.day-small {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-top: 2px;
 }
 
 .nav-arrow {
@@ -49,88 +143,376 @@ h1 {
     font-size: 1.5rem;
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 5px 15px;
-    border-radius: 20px;
+    padding: 0 15px;
+    transition: color 0.2s;
 }
 
 .nav-arrow:hover {
-    background-color: var(--accent-pastel);
-    color: var(--text-primary);
+    color: var(--accent-color);
 }
 
-/* Quote Style */
-.quote {
-    font-family: Georgia, serif; /* Serif font for elegance */
-    font-style: italic;
-    color: #8C8C8C;
-    margin-top: 15px;
-    font-size: 0.95rem;
+
+/* --- 4. DYNAMIC QUOTES --- */
+.quote-style {
+    font-family: 'Caveat', cursive; /* Handwritten Font */
+    font-size: 1.6rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin: 0 auto 40px auto;
+    opacity: 0.9;
+    max-width: 90%;
+    line-height: 1.3;
+    transition: opacity 0.3s;
 }
 
-/* Sections */
+/* --- 5. SECTIONS --- */
+.block {
+    margin-bottom: 45px;
+}
+
 .section-title {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: #B0B0B0;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    font-weight: 700;
+    padding-left: 5px;
 }
 
-/* Inputs & Textareas */
-textarea {
-    width: 100%;
-    border: none;
-    outline: none;
-    resize: none;
-    font-family: inherit;
-    font-size: 1rem;
-    color: var(--text-primary);
-    background: transparent;
-    padding: 10px;
-    border-radius: 8px;
-    transition: background 0.2s;
-}
-
-textarea:focus {
-    background: var(--card-bg); /* Highlights the active area */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-}
-
-/* Journal Area Specifics */
-#daily-journal {
-    min-height: 200px; /* Nice big blank space */
-    background: var(--card-bg); /* Always white for the main writing area */
-    padding: 20px;
-    border: 1px solid var(--line-color);
-}
-
-/* Time Slots */
-.slot {
+/* --- 6. HABITS --- */
+.habit-list {
     display: flex;
-    align-items: baseline;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--line-color);
+    flex-direction: column;
+    gap: 12px;
 }
 
-.slot .time {
-    width: 70px;
-    font-size: 0.8rem;
-    color: #B0B0B0;
-    font-variant-numeric: tabular-nums;
-}
-
-/* Checkboxes */
 .checkbox-wrapper {
     display: flex;
     align-items: center;
-    padding: 8px 0;
+    padding: 15px;
+    background: var(--card-bg);
+    border-radius: 12px;
     cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.checkbox-wrapper:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+}
+
+.checkbox-wrapper:active {
+    transform: scale(0.98);
+}
+
+.checkmark {
+    height: 22px;
+    width: 22px;
+    border: 2px solid var(--line-color);
+    border-radius: 50%;
+    margin-right: 15px;
+    position: relative;
+    transition: all 0.2s;
+}
+
+/* Checked State */
+.checkbox-wrapper input:checked + .checkmark {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.checkbox-wrapper input { display: none; }
+
+.label-text {
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+
+.checkbox-wrapper input:checked ~ .label-text {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+/* --- 7. JOURNAL --- */
+#daily-journal {
+    width: 100%;
+    min-height: 140px;
+    border: none;
+    outline: none;
+    border-radius: 12px;
+    padding: 20px;
+    background: var(--card-bg);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     color: var(--text-primary);
 }
-.checkbox-wrapper input {
-    accent-color: #8C8C8C; /* Pastel Grey checkbox */
-    transform: scale(1.2);
-    margin-right: 15px;
+#daily-journal::placeholder { color: #CBD5E0; }
+
+/* --- 8. SCHEDULE (GOOGLE CALENDAR STYLE 24H) --- */
+.gcal-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 10px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.gcal-grid {
+    display: flex;
+    flex-direction: column;
+}
+
+/* The Row */
+.slot {
+    display: flex;
+    align-items: stretch; /* Stretch height to match content */
+    border-top: 1px solid var(--line-color);
+    min-height: 45px; /* Height for 24h view */
+    position: relative;
+}
+
+/* First slot has no top border */
+.slot:first-child {
+    border-top: none;
+}
+
+/* The Time Column */
+.slot .time {
+    width: 65px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    padding-top: 12px;
+    border-right: 1px solid var(--line-color);
+    background-color: #FAFAFA;
+    flex-shrink: 0;
+}
+
+/* The Input Area */
+.slot textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: none;
+    padding: 10px 12px;
+    color: var(--text-primary);
+    line-height: 1.4;
+    overflow: hidden; /* Hide scrollbars */
+}
+.slot textarea:focus {
+    background-color: rgba(0,0,0,0.01);
+}
+
+/* --- 9. MODALS (Settings & Stats) --- */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(5px);
+    z-index: 200;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+    background: #FFF;
+    margin: 5% auto;
+    padding: 35px;
+    width: 90%;
+    max-width: 420px;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    animation: slideUp 0.3s ease;
+}
+
+/* Stats Modal Specifics - Wider for yearly view */
+.stats-content { max-width: 650px; }
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.modal-header h2 {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--accent-color);
+}
+.close-btn {
+    background: none; border: none; font-size: 2rem;
+    color: var(--text-secondary); cursor: pointer; line-height: 1;
+}
+
+/* --- 10. STATS & HEATMAP STYLES (UPDATED FOR YEAR) --- */
+.stats-summary {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+.stat-box {
+    flex: 1;
+    background: #F7FAFC;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid var(--line-color);
+}
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    font-family: 'Playfair Display', serif;
+}
+.stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-top: 5px;
+}
+
+/* Heatmap Container */
+.heatmap-container {
+    overflow-x: auto;
+    padding-bottom: 20px;
+}
+
+.heatmap-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+/* Month Labels (Jan, Feb...) */
+.heatmap-months {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 10px;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 600;
+    min-width: 600px; /* Ensure labels align with grid */
+}
+
+/* The Grid (53 weeks) */
+.heatmap-grid {
+    display: grid;
+    grid-template-rows: repeat(7, 10px); /* 7 Days vertically */
+    grid-template-columns: repeat(53, 10px); /* 53 Weeks horizontally */
+    grid-auto-flow: column;
+    gap: 3px;
+    margin-bottom: 15px;
+    width: max-content; /* Ensure it doesn't shrink */
+}
+
+.day-square {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background-color: #EDF2F7;
+    position: relative; /* For tooltips */
+    cursor: pointer;
+}
+
+/* Heatmap Intensity Levels */
+.day-square[data-level="1"] { background-color: #CBD5E0; }
+.day-square[data-level="2"] { background-color: #A0AEC0; }
+.day-square[data-level="3"] { background-color: #718096; }
+.day-square[data-level="4"] { background-color: var(--accent-color); }
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.legend-box {
+    width: 10px; height: 10px; border-radius: 2px;
+}
+.legend-box[data-level="0"] { background-color: #EDF2F7; }
+.legend-box[data-level="1"] { background-color: #CBD5E0; }
+.legend-box[data-level="2"] { background-color: #A0AEC0; }
+.legend-box[data-level="3"] { background-color: #718096; }
+.legend-box[data-level="4"] { background-color: var(--accent-color); }
+
+
+/* --- 11. SETTINGS INPUTS --- */
+.setting-group { margin-bottom: 25px; }
+.setting-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.setting-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--line-color);
+    border-radius: 10px;
+    font-size: 1rem;
+    background: #FAFAFA;
+}
+.setting-group input[type="text"]:focus {
+    outline: none; border-color: var(--accent-color); background: #FFF;
+}
+
+/* Color Circles */
+.color-options { display: flex; gap: 15px; }
+.color-circle {
+    width: 40px; height: 40px; border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: transform 0.2s, border-color 0.2s;
+}
+.color-circle:hover { transform: scale(1.1); border-color: var(--text-secondary); }
+
+/* Add Habit */
+.add-habit-box { display: flex; gap: 10px; margin-bottom: 15px; }
+#addHabitBtn {
+    background: var(--accent-color); color: #fff; border: none;
+    width: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer;
+}
+#settingsHabitList {
+    list-style: none; padding: 0; margin: 0;
+    max-height: 150px; overflow-y: auto;
+}
+
+/* Save Button */
+.save-btn {
+    width: 100%; padding: 16px; background: var(--accent-color);
+    color: #FFF; border: none; border-radius: 14px;
+    font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    margin-top: 10px; transition: opacity 0.2s;
+}
+.save-btn:hover { opacity: 0.9; }
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Mobile Optimizations */
+@media (max-width: 480px) {
+    .container { padding-bottom: 120px; }
+    .app-brand { font-size: 1.8rem; margin-bottom: 25px; }
 }
