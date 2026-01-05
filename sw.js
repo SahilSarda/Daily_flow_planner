@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daily-flow-v4';
+const CACHE_NAME = 'daily-flow-v5';
 const ASSETS = [
     '/',
     '/index.html',
