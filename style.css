@@ -1,4 +1,4 @@
-/* style.css - Complete Final Version (Invisible Scrollbars) */
+/* style.css - Complete Final Version (Invisible Scrollbars + Mobile Fix) */
 
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@300;400;500;600&display=swap');
@@ -55,9 +55,6 @@
         border: 1px solid var(--line-color);
     }
     
-    /* Empty Heatmap Squares - darker in dark mode */
-    .day-square[data-level="0"] { background-color: #334155 !important; opacity: 0.3 !important; }
-    
     /* Settings List Items */
     #settingsHabitList li { border-bottom: 1px solid var(--line-color) !important; }
     #settingsHabitList li span { color: #f1f5f9; }
@@ -67,15 +64,17 @@
     box-sizing: border-box;
 }
 
-/* --- HIDDEN SCROLLBARS (Clean App Look) --- */
+/* --- SCROLLBAR HIDING LOGIC (MOBILE COMPATIBLE) --- */
 
-/* Hide scrollbar for Chrome, Safari and Opera */
+/* 1. Hide Scrollbar for Chrome, Safari and Opera */
 ::-webkit-scrollbar {
     display: none;
+    width: 0;
+    height: 0;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-* {
+/* 2. Hide Scrollbar for IE, Edge and Firefox */
+html, body, .modal-content, .heatmap-container, #settingsHabitList {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
@@ -88,6 +87,11 @@ body {
     margin: 0;
     padding: 30px 20px 120px 20px;
     transition: background-color 0.5s ease, color 0.5s ease;
+    
+    /* CRITICAL FOR MOBILE SCROLLING */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Ensures momentum scrolling on iOS */
 }
 
 .container {
@@ -360,7 +364,7 @@ body {
     background-color: rgba(0,0,0,0.01);
 }
 
-/* --- 9. MODALS --- */
+/* --- 9. MODALS (SCROLL FIX & THEME) --- */
 .modal {
     display: none;
     position: fixed;
@@ -374,7 +378,6 @@ body {
     animation: fadeIn 0.2s ease;
 }
 
-/* SCROLLABLE MODAL CONTENT */
 .modal-content {
     background: var(--modal-bg);
     margin: 5% auto;
@@ -385,8 +388,10 @@ body {
     box-shadow: 0 20px 50px rgba(0,0,0,0.15);
     animation: slideUp 0.3s ease;
     
-    max-height: 85vh; /* Prevent overflowing screen */
-    overflow-y: auto; /* Enable scrolling */
+    /* SCROLL FIX FOR MOBILE */
+    max-height: 85vh; 
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch; /* Momentum Scroll for iOS */
 }
 
 .stats-content { max-width: 650px; }
@@ -444,6 +449,8 @@ body {
 .heatmap-container {
     overflow-x: auto;
     padding-bottom: 20px;
+    /* Ensure heatmap scrolls smoothly horizontally */
+    -webkit-overflow-scrolling: touch;
 }
 
 .heatmap-title {
@@ -594,7 +601,10 @@ body {
 }
 #settingsHabitList {
     list-style: none; padding: 0; margin: 0;
-    max-height: 150px; overflow-y: auto;
+    /* Allows inner scrolling specifically for the list if needed */
+    max-height: 150px; 
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .save-btn {
