@@ -37,7 +37,7 @@
             
             <div class="date-nav">
                 <button id="prevBtn" class="nav-arrow">←</button>
-                <div id="dateDisplayContainer" class="date-stack">
+                <div class="date-stack">
                     <span id="dateBig" class="date-big">--</span>
                     <span id="daySmall" class="day-small">Loading...</span>
                 </div>
@@ -48,7 +48,7 @@
         </header>
 
         <section class="block">
-            <h3 class="section-title">Daily Habits</h3>
+            <h3 class="section-title">Daily Habits <span id="habitTypeLabel" style="font-size: 0.7em; opacity: 0.6;"></span></h3>
             <div id="habit-list" class="habit-list"></div>
         </section>
 
@@ -103,6 +103,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Personalize</h2>
+                <button id="closeSettings" class="close-btn">&times;</button>
             </div>
             
             <div class="setting-group">
@@ -111,17 +112,55 @@
             </div>
 
             <div class="setting-group">
-                <label>Theme Color</label>
-                <div class="color-options">
-                    <div class="color-circle" style="background:#E3E8EF" data-color="#4A5568" data-tint="#F0F4F8"></div>
-                    <div class="color-circle" style="background:#E8F5E9" data-color="#2F855A" data-tint="#F1F8E9"></div>
-                    <div class="color-circle" style="background:#FFF3E0" data-color="#C05621" data-tint="#FFF8E1"></div>
-                    <div class="color-circle" style="background:#F3E5F5" data-color="#805AD5" data-tint="#FAF5FF"></div>
+                <label>Theme Aesthetic</label>
+                <div class="color-options-grid">
+                    <div class="color-item">
+                        <div class="color-circle" 
+                             style="background:#4A5568" 
+                             data-color="#4A5568" 
+                             data-tint="#F7FAFC" 
+                             data-dark-tint="#1A202C"></div>
+                        <span class="color-name">Midnight Slate</span>
+                    </div>
+                    
+                    <div class="color-item">
+                        <div class="color-circle" 
+                             style="background:#2F855A" 
+                             data-color="#2F855A" 
+                             data-tint="#F0FFF4"
+                             data-dark-tint="#14281D"></div>
+                        <span class="color-name">Forest Rain</span>
+                    </div>
+                    
+                    <div class="color-item">
+                        <div class="color-circle" 
+                             style="background:#C05621" 
+                             data-color="#C05621" 
+                             data-tint="#FFF8F0"
+                             data-dark-tint="#2D1A16"></div>
+                        <span class="color-name">Desert Dusk</span>
+                    </div>
+                    
+                    <div class="color-item">
+                        <div class="color-circle" 
+                             style="background:#805AD5" 
+                             data-color="#805AD5" 
+                             data-tint="#FAF5FF"
+                             data-dark-tint="#20152B"></div>
+                        <span class="color-name">Royal Haze</span>
+                    </div>
                 </div>
             </div>
 
             <div class="setting-group">
                 <label>Manage Habits</label>
+                <div style="margin-bottom: 10px;">
+                    <select id="habitTypeSelect" class="habit-select">
+                        <option value="weekday">Weekday Habits (Mon-Fri)</option>
+                        <option value="weekend">Weekend Habits (Sat-Sun)</option>
+                    </select>
+                </div>
+                
                 <div class="add-habit-box">
                     <input type="text" id="newHabitInput" placeholder="New habit...">
                     <button id="addHabitBtn">+</button>

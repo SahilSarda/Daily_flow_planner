@@ -1,6 +1,6 @@
-// app.js - Final Version: Linked Stats, Correct Date Format & Fast Quotes
+// app.js - Final: Weekday/Weekend Editing, Dark Mode, Notifications
 
-// --- 1. LOCAL QUOTES BACKUP (Offline mode / Instant Load) ---
+// --- 1. LOCAL QUOTES BACKUP ---
 const localQuotes = [
     "Start where you are. Use what you have.",
     "Simplicity is the ultimate sophistication.",
@@ -16,10 +16,22 @@ const localQuotes = [
 const defaultHabits = ["Drink Water", "Exercise", "Read"];
 let userPreferences = JSON.parse(localStorage.getItem('userPrefs')) || {
     name: "Friend",
-    habits: defaultHabits,
+    weekdayHabits: [...defaultHabits], // Habits for Mon-Fri
+    weekendHabits: ["Relax", "Family Time", "Plan Week"], // Different defaults for Sat-Sun
     accentColor: "#4A5568", 
-    bgTint: "#F7FAFC"       
+    bgTint: "#F7FAFC",
+    darkTint: "#1A202C" // Default Dark Slate
 };
+
+// Migration for legacy users (preserves old data)
+if (userPreferences.habits) {
+    if (!userPreferences.weekdayHabits || userPreferences.weekdayHabits.length === 0) {
+        userPreferences.weekdayHabits = [...userPreferences.habits];
+        userPreferences.weekendHabits = [...userPreferences.habits];
+    }
+    delete userPreferences.habits; 
+}
+
 let activeDate = new Date();
 
 // --- 3. DOM ELEMENTS ---
@@ -32,8 +44,7 @@ const settingsModal = document.getElementById('settingsModal');
 const statsModal = document.getElementById('statsModal');
 const root = document.documentElement;
 
-// --- 4. HELPER: LOCAL DATE KEY (CRITICAL FOR STATS) ---
-// This ensures that "Jan 3" is always "2026-01-03", regardless of timezone
+// --- 4. HELPER: DATE KEY ---
 function getLocalDateKey(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -48,67 +59,66 @@ function init() {
     loadDateData();
     fetchQuote();
     setupReminders();
+    
+    // Notification Timer (Every 60s)
+    setInterval(checkScheduleNotifications, 60000);
+    
+    // System Theme Listener (Auto-switch light/dark)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyPreferences);
 }
 
-// --- 6. LOGIC: DATE & QUOTES ---
-
+// --- 6. DATE & QUOTES ---
 function updateDateDisplay() {
-    // 1. TOP: "03 Jan 2026"
     const dd = String(activeDate.getDate()).padStart(2, '0');
     const mon = activeDate.toLocaleDateString('en-US', { month: 'short' });
     const yyyy = activeDate.getFullYear();
     dateBig.innerText = `${dd} ${mon} ${yyyy}`;
-    
-    // 2. BOTTOM: "Saturday"
     daySmall.innerText = activeDate.toLocaleDateString('en-US', { weekday: 'long' });
 }
 
 async function fetchQuote() {
-    // 1. Show local quote INSTANTLY (No waiting)
     const quoteIndex = activeDate.getDate() % localQuotes.length;
     quoteDisplay.innerText = `"${localQuotes[quoteIndex]}"`;
-    
-    // 2. Fetch from API in background
     try {
         const response = await fetch('https://api.quotable.io/random?maxLength=60');
         if (!response.ok) throw new Error("API Error");
         const data = await response.json();
-        quoteDisplay.innerText = `"${data.content}"`; // Update if successful
-    } catch (error) {
-        console.log("Using offline quote."); // Silent fallback
-    }
+        quoteDisplay.innerText = `"${data.content}"`;
+    } catch (e) { console.log("Offline quote used"); }
 }
 
-// --- 7. LOGIC: SCHEDULE (24 Hours) ---
+// --- 7. SCHEDULE ---
 function generateScheduleSlots() {
     slotsContainer.innerHTML = ''; 
     const hours = Array.from({length: 24}, (_, i) => i);
-    
     hours.forEach(hour => {
         const div = document.createElement('div');
         div.className = 'slot';
-        
         let displayTime = hour === 0 ? "12 AM" : (hour < 12 ? `${hour} AM` : (hour === 12 ? "12 PM" : `${hour - 12} PM`));
-        
-        div.innerHTML = `
-            <div class="time">${displayTime}</div>
-            <textarea data-hour="${hour}" placeholder=""></textarea>
-        `;
+        div.innerHTML = `<div class="time">${displayTime}</div><textarea data-hour="${hour}"></textarea>`;
         slotsContainer.appendChild(div);
     });
 }
 
-// --- 8. DATA LOADING & SAVING ---
+// --- 8. LOAD DATA (Weekday vs Weekend Logic) ---
 function loadDateData() {
     updateDateDisplay();
-    
-    // Use Fixed Local Key
     const key = getLocalDateKey(activeDate);
     const data = JSON.parse(localStorage.getItem(key)) || {};
     
-    // Habits
+    // Determine Day Type (0 is Sunday, 6 is Saturday)
+    const dayOfWeek = activeDate.getDay();
+    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+    
+    // Select correct habit list based on the DATE being viewed
+    const currentHabits = isWeekend ? userPreferences.weekendHabits : userPreferences.weekdayHabits;
+    
+    // Update Label on Main Screen
+    const label = document.getElementById('habitTypeLabel');
+    if(label) label.innerText = isWeekend ? "(Weekend Mode)" : "(Weekday Mode)";
+
     habitListUI.innerHTML = '';
-    userPreferences.habits.forEach(habit => {
+    currentHabits.forEach(habit => {
         const isChecked = (data.checkedHabits && data.checkedHabits.includes(habit)) ? 'checked' : '';
         const label = document.createElement('label');
         label.className = 'checkbox-wrapper';
@@ -118,23 +128,18 @@ function loadDateData() {
             <span class="label-text">${habit}</span>
         `;
         habitListUI.appendChild(label);
-
-        // Attach Event Listener directly to Input for Immediate Save
         const input = label.querySelector('input');
         input.addEventListener('change', saveData);
     });
 
-    // Journal
     const journalBox = document.getElementById('daily-journal');
     if(journalBox) {
         journalBox.value = data.journal || '';
-        // Remove old listeners by cloning
         const newBox = journalBox.cloneNode(true);
         journalBox.parentNode.replaceChild(newBox, journalBox);
         newBox.addEventListener('input', saveData);
     }
 
-    // Schedule
     document.querySelectorAll('.slot textarea').forEach(box => {
         const h = box.dataset.hour;
         box.value = (data.slots && data.slots[h]) ? data.slots[h] : '';
@@ -143,11 +148,8 @@ function loadDateData() {
 }
 
 function saveData() {
-    // Use Fixed Local Key
     const key = getLocalDateKey(activeDate);
-    
     const checked = Array.from(document.querySelectorAll('#habit-list input:checked')).map(box => box.dataset.name);
-    
     const slots = {};
     document.querySelectorAll('.slot textarea').forEach(box => {
         if(box.value.trim()) slots[box.dataset.hour] = box.value;
@@ -158,56 +160,133 @@ function saveData() {
         journal: document.getElementById('daily-journal').value,
         slots: slots
     };
-    
-    // Write to storage immediately so Stats can see it
     localStorage.setItem(key, JSON.stringify(data));
 }
 
-// --- 9. PREFERENCES ---
-function applyPreferences() {
-    const nameDisplay = document.getElementById('userNameDisplay');
-    if(nameDisplay) nameDisplay.innerText = userPreferences.name;
-    const nameInput = document.getElementById('nameInput');
-    if(nameInput) nameInput.value = userPreferences.name;
-    
-    root.style.setProperty('--accent-color', userPreferences.accentColor);
-    root.style.setProperty('--accent-tint', userPreferences.bgTint);
+// --- 9. NOTIFICATIONS ---
+function checkScheduleNotifications() {
+    if (Notification.permission !== "granted") return;
 
-    const settingsList = document.getElementById('settingsHabitList');
-    if(settingsList) {
-        settingsList.innerHTML = '';
-        userPreferences.habits.forEach((habit, index) => {
-            const li = document.createElement('li');
-            li.style.display = 'flex'; li.style.justifyContent = 'space-between'; li.style.padding = '10px 0'; li.style.borderBottom = '1px solid #eee';
-            li.innerHTML = `<span>${habit}</span> <span onclick="removeHabit(${index})" style="color:#e53e3e; cursor:pointer;">&times;</span>`;
-            settingsList.appendChild(li);
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // Notify at XX:40 for task at (XX+1):00
+    if (currentMinute !== 40) return;
+
+    const targetHour = currentHour + 1;
+    const key = getLocalDateKey(now);
+    const data = JSON.parse(localStorage.getItem(key)) || {};
+    
+    if (data.slots && data.slots[targetHour]) {
+        const taskName = data.slots[targetHour];
+        new Notification("Upcoming Task 🔔", {
+            body: `In 20 mins: ${taskName}`,
+            icon: 'icon.png'
         });
     }
 }
 
-// --- 10. STATS & YEARLY HEATMAP (Linked Logic) ---
+// --- 10. PREFERENCES & EDITING LOGIC ---
+function applyPreferences() {
+    document.getElementById('userNameDisplay').innerText = userPreferences.name;
+    document.getElementById('nameInput').value = userPreferences.name;
+    
+    // Theme Logic
+    root.style.setProperty('--accent-color', userPreferences.accentColor);
+    const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    
+    // If dark mode, use the darkTint, otherwise use bgTint
+    // If user hasn't selected a theme recently (legacy), fallback to default dark
+    const bgToApply = isDarkMode 
+        ? (userPreferences.darkTint || "#1A202C") 
+        : userPreferences.bgTint;
+        
+    root.style.setProperty('--accent-tint', bgToApply);
+    
+    // Render the list inside settings based on current dropdown selection
+    renderSettingsHabitList();
+}
+
+// This function controls which list you are editing in settings
+function renderSettingsHabitList() {
+    const type = document.getElementById('habitTypeSelect').value; // 'weekday' or 'weekend'
+    
+    // Pick the array to show
+    const listToRender = (type === 'weekend') ? userPreferences.weekendHabits : userPreferences.weekdayHabits;
+    
+    const settingsList = document.getElementById('settingsHabitList');
+    settingsList.innerHTML = '';
+    
+    listToRender.forEach((habit, index) => {
+        const li = document.createElement('li');
+        li.style.display = 'flex'; li.style.justifyContent = 'space-between'; li.style.padding = '10px 0'; li.style.borderBottom = '1px solid #eee';
+        // Pass the 'type' to removeHabit so we delete from the correct list
+        li.innerHTML = `<span>${habit}</span> <span onclick="removeHabit(${index}, '${type}')" style="color:#e53e3e; cursor:pointer; padding:0 10px;">&times;</span>`;
+        settingsList.appendChild(li);
+    });
+}
+
+// When you change the dropdown, refresh the list immediately
+document.getElementById('habitTypeSelect').addEventListener('change', () => {
+    renderSettingsHabitList();
+});
+
+// Add Habit Button Logic
+document.getElementById('addHabitBtn').onclick = () => {
+    const input = document.getElementById('newHabitInput');
+    const val = input.value.trim();
+    const type = document.getElementById('habitTypeSelect').value; // Check dropdown value
+    
+    if(val) {
+        if(type === 'weekend') {
+            userPreferences.weekendHabits.push(val);
+        } else {
+            userPreferences.weekdayHabits.push(val);
+        }
+        input.value = '';
+        renderSettingsHabitList(); // Refresh view
+    }
+};
+
+// Remove Habit Logic
+window.removeHabit = (index, type) => {
+    if(type === 'weekend') {
+        userPreferences.weekendHabits.splice(index, 1);
+    } else {
+        userPreferences.weekdayHabits.splice(index, 1);
+    }
+    renderSettingsHabitList(); // Refresh view
+};
+
+// COLOR SELECTION (Handles clicks on the new Aesthetic Cards)
+document.querySelectorAll('.color-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const circle = item.querySelector('.color-circle');
+        userPreferences.accentColor = circle.dataset.color;
+        userPreferences.bgTint = circle.dataset.tint;
+        userPreferences.darkTint = circle.dataset.darkTint; // Save Dark Mode Tint
+        applyPreferences();
+    });
+});
+
+// --- 11. STATS ---
 function calculateStats() {
     let totalHabits = 0;
     let currentStreak = 0;
-    
-    // 1. Range: Jan 1 to Dec 31 of CURRENT YEAR
     const currentYear = activeDate.getFullYear();
     const startDate = new Date(currentYear, 0, 1);
     const endDate = new Date(currentYear, 11, 31);
-    
     const heatmapData = [];
     
-    // 2. Loop through year
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        // Use EXACT same key format as saveData
         const key = getLocalDateKey(d);
-        
         const isFuture = d > new Date();
         const dayData = JSON.parse(localStorage.getItem(key)) || {};
         const count = dayData.checkedHabits ? dayData.checkedHabits.length : 0;
         
         if (!isFuture) totalHabits += count;
-
+        
         let level = 0;
         if (count > 0) level = 1;
         if (count > 1) level = 2;
@@ -215,27 +294,17 @@ function calculateStats() {
         if (count >= 5) level = 4;
         
         const tooltipDate = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-        heatmapData.push({ 
-            dateStr: tooltipDate, 
-            level: isFuture ? -1 : level,
-            count: count 
-        });
+        heatmapData.push({ dateStr: tooltipDate, level: isFuture ? -1 : level, count: count });
     }
 
-    // 3. Streak Logic
     const todayKey = getLocalDateKey(new Date());
     const todayData = JSON.parse(localStorage.getItem(todayKey)) || {};
     const dayOfYear = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
     
     let streakBroken = false;
-    // Check today first
-    if (todayData.checkedHabits && todayData.checkedHabits.length > 0) {
-        currentStreak = 0; 
-    } else {
-        streakBroken = true; 
-    }
+    if (todayData.checkedHabits && todayData.checkedHabits.length > 0) currentStreak = 0; 
+    else streakBroken = true;
 
-    // Loop backwards
     if (heatmapData[dayOfYear]) {
         for (let i = dayOfYear; i >= 0; i--) {
             if (heatmapData[i].level > 0) {
@@ -244,8 +313,8 @@ function calculateStats() {
                     streakBroken = false;
                 }
             } else {
-                if (i === dayOfYear) continue; 
-                break; 
+                if (i === dayOfYear) continue;
+                break;
             }
         }
     }
@@ -260,14 +329,12 @@ function renderHeatmap(data) {
     if(!grid) return;
     grid.innerHTML = '';
     
-    // Month Labels
     let labelsContainer = document.getElementById('heatmapMonths');
     if (!labelsContainer) {
         labelsContainer = document.createElement('div');
         labelsContainer.id = 'heatmapMonths';
         labelsContainer.className = 'heatmap-months';
         grid.parentNode.insertBefore(labelsContainer, grid);
-        
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         months.forEach(m => {
             const span = document.createElement('span');
@@ -279,22 +346,22 @@ function renderHeatmap(data) {
     data.forEach(day => {
         const div = document.createElement('div');
         div.className = 'day-square';
-        
         if (day.level === -1) {
              div.style.backgroundColor = "transparent";
              div.style.border = "1px dashed #E2E8F0";
         } else {
              div.dataset.level = day.level;
-             div.title = `${day.dateStr}, ${day.count} Habits Done`;
+             div.title = `${day.dateStr}: ${day.count} Habits Done`;
         }
         grid.appendChild(div);
     });
 }
 
-// --- 11. EVENTS ---
+// --- 12. EVENTS ---
 document.getElementById('prevBtn').onclick = () => { activeDate.setDate(activeDate.getDate() - 1); loadDateData(); fetchQuote(); };
 document.getElementById('nextBtn').onclick = () => { activeDate.setDate(activeDate.getDate() + 1); loadDateData(); fetchQuote(); };
 document.getElementById('settingsBtn').onclick = () => { settingsModal.style.display = 'block'; };
+document.getElementById('closeSettings').onclick = () => { settingsModal.style.display = 'none'; };
 document.getElementById('statsBtn').onclick = () => { calculateStats(); statsModal.style.display = 'block'; };
 document.getElementById('closeStats').onclick = () => { statsModal.style.display = 'none'; };
 
@@ -304,27 +371,10 @@ document.getElementById('saveSettingsBtn').onclick = () => {
     applyPreferences(); loadDateData(); settingsModal.style.display = 'none';
 };
 
-document.getElementById('addHabitBtn').onclick = () => {
-    const input = document.getElementById('newHabitInput');
-    const val = input.value.trim();
-    if(val) { userPreferences.habits.push(val); input.value = ''; applyPreferences(); }
-};
-
-window.removeHabit = (index) => { userPreferences.habits.splice(index, 1); applyPreferences(); };
-
 window.onclick = (event) => {
     if (event.target == settingsModal) settingsModal.style.display = 'none';
     if (event.target == statsModal) statsModal.style.display = 'none';
 };
-
-document.querySelectorAll('.color-circle').forEach(circle => {
-    circle.addEventListener('click', () => {
-        userPreferences.accentColor = circle.dataset.color;
-        userPreferences.bgTint = circle.dataset.tint;
-        root.style.setProperty('--accent-color', circle.dataset.color);
-        root.style.setProperty('--accent-tint', circle.dataset.tint);
-    });
-});
 
 function setupReminders() {
     const btn = document.getElementById('reminderBtn');
@@ -336,5 +386,4 @@ function setupReminders() {
     };
 }
 
-// Start App
 init();
